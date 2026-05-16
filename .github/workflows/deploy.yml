@@ -39,7 +39,18 @@ jobs:
         proxy_username: ec2-user
         proxy_key: ${{ secrets.FRONTEND_SSH_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest
-          docker stop api-despachos || true
-          docker rm api-despachos || true
-          docker run -d --name api-despachos -p 8081:8080 ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest
+          # 1. Verificar si Docker está instalado; si no, instalarlo y activarlo
+          if ! command -v docker &> /dev/null; then
+            echo "Docker no detectado. Iniciando instalación automatizada..."
+            sudo yum update -y
+            sudo yum install -y docker
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo usermod -aG docker ec2-user
+          fi
+
+          # 2. Desplegar el contenedor usando privilegios elevados
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest
+          sudo docker stop api-despachos || true
+          sudo docker rm api-despachos || true
+          sudo docker run -d --name api-despachos -p 8081:8080 ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest
