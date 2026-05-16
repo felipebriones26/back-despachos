@@ -3,6 +3,7 @@ name: CI/CD Pipeline - Back Despachos
 on:
   push:
     branches: [ "deploy" ] 
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -22,18 +23,21 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest # Imagen específica
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest
 
   deploy-to-ec2:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-    - name: Despliegue en AWS EC2 vía SSH
+    - name: Despliegue en AWS EC2 vía SSH (Usando Bastión)
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.EC2_HOST }}
+        host: 10.0.6.122
         username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
+        proxy_host: ${{ secrets.FRONTEND_HOST }}
+        proxy_username: ec2-user
+        proxy_key: ${{ secrets.FRONTEND_SSH_KEY }}
         script: |
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest
           docker stop api-despachos || true
