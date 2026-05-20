@@ -45,5 +45,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
         ErrorMessage errorMessage = new ErrorMessage(HttpStatus.BAD_REQUEST, "Error de validación", errors);
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+        
     }
 }
