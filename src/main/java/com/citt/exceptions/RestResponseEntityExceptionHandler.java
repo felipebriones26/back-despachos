@@ -26,6 +26,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         errors.put("idDespacho", "ID de despacho no existe");
         ErrorMessage message = new ErrorMessage(HttpStatus.NOT_FOUND, exception.getMessage(), errors);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        
     }
 
     @Override
